@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import {
-  Switch, Route, Link
+  Switch, Route, Link,
+  useRouteMatch
 } from "react-router-dom"
 
 const Menu = () => {
@@ -16,11 +17,23 @@ const Menu = () => {
   )
 }
 
+const Anecdote = ({ anecdote }) => (
+  <div>
+    <h2>{anecdote.content} by {anecdote.author}</h2>
+    <p>has {anecdote.votes} votes</p>
+    <p>for more info see <a href={anecdote.info}>{anecdote.info}</a></p>
+  </div>
+)
+
 const AnecdoteList = ({ anecdotes }) => (
   <div>
     <h2>Anecdotes</h2>
     <ul>
-      {anecdotes.map(anecdote => <li key={anecdote.id} >{anecdote.content}</li>)}
+      {anecdotes.map(anecdote => 
+        <li key={anecdote.id} >
+          <Link to={`/${anecdote.id}`}>{anecdote.content}</Link>
+        </li>
+      )}
     </ul>
   </div>
 )
@@ -125,6 +138,9 @@ const App = () => {
     setAnecdotes(anecdotes.map(a => a.id === id ? voted : a))
   }
 
+  const match = useRouteMatch('/:id')
+  const anecdote = match ? anecdoteById(match.params.id) : null
+
   // for Switch component, the order of components is important
   // if the path for "/" is first, nothing below it would get rendered
   // because the "/" is the start of every path, so place it at the very end
@@ -139,6 +155,9 @@ const App = () => {
         </Route>
         <Route path="/about">
           <About />
+        </Route>
+        <Route path="/:id">
+          <Anecdote anecdote={anecdote} />
         </Route>
         <Route path="/">
           <AnecdoteList anecdotes={anecdotes} />
