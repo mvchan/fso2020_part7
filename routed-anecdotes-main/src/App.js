@@ -88,6 +88,13 @@ const CreateNew = (props) => {
     history.push('/')
   }
 
+  const handleReset = (e) => {
+    e.preventDefault()
+    content.reset()
+    author.reset()
+    info.reset()
+  }
+
   // spread operator used for assigning the attributes as props since they have the same name
   // e.g. content is an object with type, value, and onChange properties, which input element uses
   return (
@@ -107,6 +114,7 @@ const CreateNew = (props) => {
           <input {...info} />
         </div>
         <button>create</button>
+        <button onClick={handleReset}>reset</button>
       </form>
     </div>
   )
