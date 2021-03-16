@@ -4,6 +4,7 @@ import {
   useRouteMatch,
   useHistory
 } from "react-router-dom"
+import { useField } from './hooks'
 
 let timeoutID
 
@@ -64,9 +65,10 @@ const Footer = () => (
 )
 
 const CreateNew = (props) => {
-  const [content, setContent] = useState('')
-  const [author, setAuthor] = useState('')
-  const [info, setInfo] = useState('')
+  // custom hooks
+  const content = useField('text')
+  const author = useField('text')
+  const info = useField('text')
 
   // this is a hook that allows url to change and route to
   // corresponding component in the App's Switch
@@ -75,32 +77,34 @@ const CreateNew = (props) => {
   const handleSubmit = (e) => {
     e.preventDefault()
     props.addNew({
-      content,
-      author,
-      info,
+      content: content.value,
+      author: author.value,
+      info: info.value,
       votes: 0
     })
     clearTimeout(timeoutID)
-    props.setNotification(`a new anecdote ${content} created!`)
+    props.setNotification(`a new anecdote ${content.value} created!`)
     timeoutID = setTimeout(() => props.setNotification(''), 10000)
     history.push('/')
   }
 
+  // spread operator used for assigning the attributes as props since they have the same name
+  // e.g. content is an object with type, value, and onChange properties, which input element uses
   return (
     <div>
       <h2>create a new anecdote</h2>
       <form onSubmit={handleSubmit}>
         <div>
           content
-          <input name='content' value={content} onChange={(e) => setContent(e.target.value)} />
+          <input {...content} />
         </div>
         <div>
           author
-          <input name='author' value={author} onChange={(e) => setAuthor(e.target.value)} />
+          <input {...author} />
         </div>
         <div>
           url for more info
-          <input name='info' value={info} onChange={(e)=> setInfo(e.target.value)} />
+          <input {...info} />
         </div>
         <button>create</button>
       </form>
