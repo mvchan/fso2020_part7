@@ -64,6 +64,10 @@ const Footer = () => (
   </div>
 )
 
+const Input = ({type,value,onChange}) => (
+  <input type={type} value={value} onChange={onChange} />
+)
+
 const CreateNew = (props) => {
   // custom hooks
   const content = useField('text')
@@ -76,6 +80,10 @@ const CreateNew = (props) => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+
+    if (!content.value || !author.value || !info.value)
+      return
+      
     props.addNew({
       content: content.value,
       author: author.value,
@@ -103,15 +111,15 @@ const CreateNew = (props) => {
       <form onSubmit={handleSubmit}>
         <div>
           content
-          <input {...content} />
+          <Input {...content} />
         </div>
         <div>
           author
-          <input {...author} />
+          <Input {...author} />
         </div>
         <div>
           url for more info
-          <input {...info} />
+          <Input {...info} />
         </div>
         <button>create</button>
         <button onClick={handleReset}>reset</button>
