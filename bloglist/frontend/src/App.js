@@ -6,12 +6,13 @@ import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
 import Togglable from './components/Togglable'
 import { createNewBlog, initializeBlogs, removeBlog, updateBlog, setToken } from './reducers/blogReducer'
+import { setNormalMessage, setErrorMessage } from './reducers/notificationReducer'
 import { useDispatch, useSelector } from 'react-redux'
 
 const App = () => {
-    const [normalMessage, setNormalMessage] = useState(null)
-    const [errorMessage, setErrorMessage] = useState(null)
+
     const blogs = useSelector(state => state.blogs)
+    const notification = useSelector(state => state.notification)
     const [user, setUser] = useState(null)
 
     const blogFormRef = useRef()
@@ -20,7 +21,7 @@ const App = () => {
     useEffect(() => {
         dispatch(initializeBlogs())
     }, [dispatch])
-    
+
     //empty array will result in only executing once on first-time render
     useEffect(() => {
         const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
@@ -41,13 +42,9 @@ const App = () => {
             )
 
             dispatch(setToken(user.token))
-
             setUser(user)
         } catch (exception) {
-            setErrorMessage('wrong username or password')
-            setTimeout(() => {
-                setErrorMessage(null)
-            }, 5000)
+            dispatch(setErrorMessage('wrong username or password'))
         }
     }
 
@@ -55,15 +52,9 @@ const App = () => {
         try {
             dispatch(createNewBlog(blogObject))
             blogFormRef.current.toggleVisibility()
-            setNormalMessage(`a new blog titled '${blogObject.title}' by ${blogObject.author} has been added`)
-            setTimeout(() => {
-                setNormalMessage(null)
-            }, 5000)
+            dispatch(setNormalMessage(`a new blog titled '${blogObject.title}' by ${blogObject.author} has been added`))
         } catch (exception) {
-            setErrorMessage('Could not create new blog')
-            setTimeout(() => {
-                setErrorMessage(null)
-            }, 5000)
+            dispatch(setErrorMessage('Could not create new blog'))
         }
     }
 
@@ -71,10 +62,7 @@ const App = () => {
         try {
             dispatch(updateBlog(id,blogObject))
         } catch (exception) {
-            setErrorMessage('Could not like blog')
-            setTimeout(() => {
-                setErrorMessage(null)
-            }, 5000)
+            dispatch(setErrorMessage('Could not like blog'))
         }
     }
 
@@ -84,16 +72,9 @@ const App = () => {
                 return
 
             dispatch(removeBlog(blog.id))
-
-            setNormalMessage(`the blog titled '${blog.title}' by ${blog.author} has been deleted`)
-            setTimeout(() => {
-                setNormalMessage(null)
-            }, 5000)
+            dispatch(setNormalMessage(`the blog titled '${blog.title}' by ${blog.author} has been deleted`))
         } catch (exception) {
-            setErrorMessage('Could not delete blog')
-            setTimeout(() => {
-                setErrorMessage(null)
-            }, 5000)
+            dispatch(setErrorMessage('Could not delete blog'))
         }
     }
 
@@ -115,13 +96,12 @@ const App = () => {
             {user === null
                 ?
                 <div>
-                    <Notification message={errorMessage} isError={true} />
+                    <Notification notification={notification} />
                     {loginForm()}
                 </div>
                 :
                 <div>
-                    <Notification message={normalMessage} isError={false} />
-                    <Notification message={errorMessage} isError={true} />
+                    <Notification notification={notification} />
                     <p>{user.name} logged in
                         <button onClick={() => {
                             window.localStorage.removeItem('loggedBlogAppUser')

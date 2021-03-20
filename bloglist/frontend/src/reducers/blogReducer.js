@@ -2,28 +2,28 @@ import blogService from '../services/blogs'
 import { cloneDeep } from 'lodash'
 
 const reducer = (state = [], action) => {
-    console.log('state now: ', state)
-    console.log('action', action)
+    console.log('blog state now: ', state)
+    console.log('blog action: ', action)
 
     let blogsCopy
 
     switch(action.type) {
-        case 'INIT_BLOGS':
-            return action.data
-        case 'CREATE_BLOG':
-            return state.concat({...action.data})
-        case 'UPDATE_BLOG':
-            // deep copy from lodash needed to trigger re-render since modifying the state array will not
-            state[state.findIndex(a => a.id === action.data.id)].likes = action.data.likes
-            blogsCopy = cloneDeep(state)
-            return blogsCopy
-        case 'REMOVE_BLOG':
-            // deep copy from lodash needed to trigger re-render since modifying the state array will not
-            state.splice(state.findIndex(a => a.id === action.data.id),1)
-            blogsCopy = cloneDeep(state)
-            return blogsCopy
-        default:
-            return state
+    case 'INIT_BLOGS':
+        return action.data
+    case 'CREATE_BLOG':
+        return state.concat({ ...action.data })
+    case 'UPDATE_BLOG':
+        // deep copy from lodash needed to trigger re-render since modifying the state array will not
+        state[state.findIndex(a => a.id === action.data.id)].likes = action.data.likes
+        blogsCopy = cloneDeep(state)
+        return blogsCopy
+    case 'REMOVE_BLOG':
+        // deep copy from lodash needed to trigger re-render since modifying the state array will not
+        state.splice(state.findIndex(a => a.id === action.data),1)
+        blogsCopy = cloneDeep(state)
+        return blogsCopy
+    default:
+        return state
     }
 }
 
@@ -58,7 +58,7 @@ export const updateBlog = (id,blogObject) => {
         const blog = await blogService.update(id,blogObject)
         dispatch({
             type: 'UPDATE_BLOG',
-            data: {id,...blog}
+            data: { id, ...blog }
         })
     }
 }
