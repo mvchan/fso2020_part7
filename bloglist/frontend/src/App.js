@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import Notification from './components/Notification'
 import loginService from './services/login'
@@ -7,17 +7,19 @@ import BlogForm from './components/BlogForm'
 import Togglable from './components/Togglable'
 import { createNewBlog, initializeBlogs, removeBlog, updateBlog, setToken } from './reducers/blogReducer'
 import { setNormalMessage, setErrorMessage } from './reducers/notificationReducer'
+import { setUser } from './reducers/userReducer'
 import { useDispatch, useSelector } from 'react-redux'
 
 const App = () => {
 
     const blogs = useSelector(state => state.blogs)
     const notification = useSelector(state => state.notification)
-    const [user, setUser] = useState(null)
+    const user = useSelector(state => state.user)
 
     const blogFormRef = useRef()
 
     const dispatch = useDispatch()
+
     useEffect(() => {
         dispatch(initializeBlogs())
     }, [dispatch])
@@ -27,7 +29,8 @@ const App = () => {
         const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
         if (loggedUserJSON) {
             const user = JSON.parse(loggedUserJSON)
-            setUser(user)
+            console.log('user: ', user)
+            dispatch(setUser(user))
             dispatch(setToken(user.token))
         }
     }, [dispatch])
@@ -42,7 +45,7 @@ const App = () => {
             )
 
             dispatch(setToken(user.token))
-            setUser(user)
+            dispatch(setUser(user))
         } catch (exception) {
             dispatch(setErrorMessage('wrong username or password'))
         }
@@ -105,7 +108,7 @@ const App = () => {
                     <p>{user.name} logged in
                         <button onClick={() => {
                             window.localStorage.removeItem('loggedBlogAppUser')
-                            setUser(null)
+                            dispatch(setUser(null))
                         }
                         }>logout
                         </button>
