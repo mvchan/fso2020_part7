@@ -7,14 +7,19 @@ import BlogForm from './components/BlogForm'
 import Togglable from './components/Togglable'
 import { createNewBlog, initializeBlogs, removeBlog, updateBlog, setToken } from './reducers/blogReducer'
 import { setNormalMessage, setErrorMessage } from './reducers/notificationReducer'
-import { setUser } from './reducers/userReducer'
+import { setLogin } from './reducers/loginReducer'
+import { initializeUsers } from './reducers/usersReducer'
 import { useDispatch, useSelector } from 'react-redux'
+import {
+    Switch, Route
+} from 'react-router-dom'
 
 const App = () => {
 
     const blogs = useSelector(state => state.blogs)
     const notification = useSelector(state => state.notification)
-    const user = useSelector(state => state.user)
+    const login = useSelector(state => state.login)
+    const users = useSelector(state => state.users)
 
     const blogFormRef = useRef()
 
@@ -22,15 +27,12 @@ const App = () => {
 
     useEffect(() => {
         dispatch(initializeBlogs())
-    }, [dispatch])
+        dispatch(initializeUsers())
 
-    //empty array will result in only executing once on first-time render
-    useEffect(() => {
         const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
         if (loggedUserJSON) {
             const user = JSON.parse(loggedUserJSON)
-            console.log('user: ', user)
-            dispatch(setUser(user))
+            dispatch(setLogin(user))
             dispatch(setToken(user.token))
         }
     }, [dispatch])
@@ -45,7 +47,8 @@ const App = () => {
             )
 
             dispatch(setToken(user.token))
-            dispatch(setUser(user))
+            dispatch(setLogin(user))
+            dispatch(setNormalMessage(`${user.name} successfully logged in!`))
         } catch (exception) {
             dispatch(setErrorMessage('wrong username or password'))
         }
@@ -93,10 +96,10 @@ const App = () => {
         </Togglable>
     )
 
-    return (
+    const Header = () => (
         <div>
             <h2>Blogs</h2>
-            {user === null
+            {!login
                 ?
                 <div>
                     <Notification notification={notification} />
@@ -105,22 +108,78 @@ const App = () => {
                 :
                 <div>
                     <Notification notification={notification} />
-                    <p>{user.name} logged in
+                    <p>{login.name} logged in
                         <button onClick={() => {
                             window.localStorage.removeItem('loggedBlogAppUser')
-                            dispatch(setUser(null))
+                            dispatch(setLogin(null))
                         }
-                        }>logout
+                        }>
+                        logout
                         </button>
                     </p>
+                </div>
+            }
+        </div>
+    )
+
+    const Blogs = () => (
+        <div>
+            {!login
+                ?
+                null
+                :
+                <div>
                     {blogForm()}
                     <div id='blog-list'>
                         {blogs.sort((a,b) => b.likes - a.likes)
                             .sort((x,y) => x.title.toLowerCase() - y.title.toLowerCase())
-                            .map(blog => <Blog key={blog.id} blog={blog} user={user} likeOperation={handleLikeOperation} deleteOperation={handleDeleteOperation} />)}
+                            .map(blog => <Blog key={blog.id} blog={blog} user={login} likeOperation={handleLikeOperation} deleteOperation={handleDeleteOperation} />)}
                     </div>
                 </div>
             }
+        </div>
+    )
+
+    const Users = () => (
+        <div>
+            {!login
+                ?
+                null
+                :
+                <table>
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td><b>blogs created</b></td>
+                        </tr>
+                        {users.sort((a,b) => a.name.toLowerCase() > b.name.toLowerCase()).map(user => (
+                            <tr key={user.id}>
+                                <td>
+                                    {user.name}
+                                </td>
+                                <td>
+                                    {user.blogs.length}
+                                </td>
+                            </tr>
+
+                        ))}
+                    </tbody>
+                </table>
+            }
+        </div>
+    )
+
+    return (
+        <div>
+            <Header />
+            <Switch>
+                <Route path='/users'>
+                    <Users />
+                </Route>
+                <Route path='/'>
+                    <Blogs />
+                </Route>
+            </Switch>
         </div>
     )
 }
