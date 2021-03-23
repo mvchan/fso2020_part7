@@ -11,7 +11,8 @@ import { setLogin } from './reducers/loginReducer'
 import { initializeUsers } from './reducers/usersReducer'
 import { useDispatch, useSelector } from 'react-redux'
 import {
-    Switch, Route
+    Switch, Route, Link,
+    useRouteMatch
 } from 'react-router-dom'
 
 const App = () => {
@@ -96,6 +97,9 @@ const App = () => {
         </Togglable>
     )
 
+    const match = useRouteMatch('/users/:id')
+    const user = match ? users.find(user => user.id === match.params.id) : null
+
     const Header = () => (
         <div>
             <h2>Blogs</h2>
@@ -122,7 +126,7 @@ const App = () => {
         </div>
     )
 
-    const Blogs = () => (
+    const AllBlogs = () => (
         <div>
             {!login
                 ?
@@ -146,25 +150,47 @@ const App = () => {
                 ?
                 null
                 :
-                <table>
-                    <tbody>
-                        <tr>
-                            <td></td>
-                            <td><b>blogs created</b></td>
-                        </tr>
-                        {users.sort((a,b) => a.name.toLowerCase() > b.name.toLowerCase()).map(user => (
-                            <tr key={user.id}>
-                                <td>
-                                    {user.name}
-                                </td>
-                                <td>
-                                    {user.blogs.length}
-                                </td>
+                <>
+                    <h2>Users</h2>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td></td>
+                                <td><b>blogs created</b></td>
                             </tr>
+                            {users.sort((a,b) => a.name.toLowerCase() > b.name.toLowerCase()).map(user => (
+                                <tr key={user.id}>
+                                    <td>
+                                        <Link to={`/users/${user.id}`}>{user.name}</Link>
+                                    </td>
+                                    <td>
+                                        {user.blogs.length}
+                                    </td>
+                                </tr>
 
+                            ))}
+                        </tbody>
+                    </table>
+                </>
+            }
+        </div>
+    )
+
+    // user should be checked as well if null because the data from backend might not have been received yet, or else will return undefined error
+    const UserBlogs = () => (
+        <div>
+            {!login || !user
+                ? null
+                :
+                <>
+                    <h2>{user.name}</h2>
+                    <h3>added blogs</h3>
+                    <ul>
+                        {user.blogs.map(blog => (
+                            <li key={blog.id}>{blog.title}</li>
                         ))}
-                    </tbody>
-                </table>
+                    </ul>
+                </>
             }
         </div>
     )
@@ -173,11 +199,14 @@ const App = () => {
         <div>
             <Header />
             <Switch>
+                <Route path='/users/:id'>
+                    <UserBlogs />
+                </Route>
                 <Route path='/users'>
                     <Users />
                 </Route>
                 <Route path='/'>
-                    <Blogs />
+                    <AllBlogs />
                 </Route>
             </Switch>
         </div>
