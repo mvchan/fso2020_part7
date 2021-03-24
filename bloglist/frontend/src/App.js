@@ -97,8 +97,11 @@ const App = () => {
         </Togglable>
     )
 
-    const match = useRouteMatch('/users/:id')
-    const user = match ? users.find(user => user.id === match.params.id) : null
+    const userMatch = useRouteMatch('/users/:id')
+    const user = userMatch ? users.find(user => user.id === userMatch.params.id) : null
+
+    const blogMatch = useRouteMatch('/blogs/:id')
+    const blog = blogMatch ? blogs.find(user => user.id === blogMatch.params.id) : null
 
     const Header = () => (
         <div>
@@ -126,23 +129,38 @@ const App = () => {
         </div>
     )
 
-    const AllBlogs = () => (
-        <div>
-            {!login
-                ?
-                null
-                :
-                <div>
-                    {blogForm()}
-                    <div id='blog-list'>
-                        {blogs.sort((a,b) => b.likes - a.likes)
-                            .sort((x,y) => x.title.toLowerCase() - y.title.toLowerCase())
-                            .map(blog => <Blog key={blog.id} blog={blog} user={login} likeOperation={handleLikeOperation} deleteOperation={handleDeleteOperation} />)}
+    const AllBlogs = () => {
+        const blogStyle = {
+            paddingTop: 10,
+            paddingLeft: 2,
+            border: 'solid',
+            borderWidth: 1,
+            marginBottom: 5
+        }
+
+        return (
+            <div>
+                {!login
+                    ?
+                    null
+                    :
+                    <div>
+                        {blogForm()}
+                        <div id='blog-list'>
+                            {blogs.sort((a,b) => b.likes - a.likes)
+                                .sort((x,y) => x.title.toLowerCase() - y.title.toLowerCase())
+                                .map(blog => (
+                                    <div key={blog.id} style={blogStyle}>
+                                        <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
+                                    </div>
+                                ))
+                            }
+                        </div>
                     </div>
-                </div>
-            }
-        </div>
-    )
+                }
+            </div>
+        )
+    }
 
     const Users = () => (
         <div>
@@ -204,6 +222,9 @@ const App = () => {
                 </Route>
                 <Route path='/users'>
                     <Users />
+                </Route>
+                <Route path='/blogs/:id'>
+                    <Blog blog={blog} user={login} likeOperation={handleLikeOperation} deleteOperation={handleDeleteOperation} />
                 </Route>
                 <Route path='/'>
                     <AllBlogs />
