@@ -12,8 +12,10 @@ import { initializeUsers } from './reducers/usersReducer'
 import { useDispatch, useSelector } from 'react-redux'
 import {
     Switch, Route, Link,
-    useRouteMatch
+    useRouteMatch,
+    useHistory
 } from 'react-router-dom'
+import { Container, AppBar, Toolbar, Button } from '@material-ui/core'
 
 const App = () => {
 
@@ -23,7 +25,7 @@ const App = () => {
     const users = useSelector(state => state.users)
 
     const blogFormRef = useRef()
-
+    const history = useHistory()
     const dispatch = useDispatch()
 
     useEffect(() => {
@@ -77,7 +79,7 @@ const App = () => {
         try {
             if (!window.confirm(`Remove blog '${blog.title}' by ${blog.author}?`))
                 return
-
+            history.push('/')
             dispatch(removeBlog(blog.id))
             dispatch(setNormalMessage(`the blog titled '${blog.title}' by ${blog.author} has been deleted`))
         } catch (exception) {
@@ -103,28 +105,39 @@ const App = () => {
     const blogMatch = useRouteMatch('/blogs/:id')
     const blog = blogMatch ? blogs.find(user => user.id === blogMatch.params.id) : null
 
+    const Navigation = () => (
+        <AppBar position="static">
+            <Toolbar>
+                <Button color="inherit" component={Link} to="/">
+                blogs
+                </Button>
+                <Button color="inherit" component={Link} to="/users">
+                users
+                </Button>
+                {login
+                    ? <em>{login.name} logged in <button onClick={() => {
+                        window.localStorage.removeItem('loggedBlogAppUser')
+                        dispatch(setLogin(null))
+                    }
+                    }>
+                    logout
+                    </button></em>
+                    : null
+                }
+            </Toolbar>
+        </AppBar>
+    )
+
     const Header = () => (
         <div>
-            <h2>Blogs</h2>
+            <Notification notification={notification} />
             {!login
                 ?
                 <div>
-                    <Notification notification={notification} />
+                    <h2>Login</h2>
                     {loginForm()}
                 </div>
-                :
-                <div>
-                    <Notification notification={notification} />
-                    <p>{login.name} logged in
-                        <button onClick={() => {
-                            window.localStorage.removeItem('loggedBlogAppUser')
-                            dispatch(setLogin(null))
-                        }
-                        }>
-                        logout
-                        </button>
-                    </p>
-                </div>
+                : null
             }
         </div>
     )
@@ -145,6 +158,7 @@ const App = () => {
                     null
                     :
                     <div>
+                        <h2>Blogs</h2>
                         {blogForm()}
                         <div id='blog-list'>
                             {blogs.sort((a,b) => b.likes - a.likes)
@@ -182,10 +196,9 @@ const App = () => {
                                         <Link to={`/users/${user.id}`}>{user.name}</Link>
                                     </td>
                                     <td>
-                                        {user.blogs.length}
+                                        {blogs.filter(blog => blog.user.id === user.id).length}
                                     </td>
                                 </tr>
-
                             ))}
                         </tbody>
                     </table>
@@ -204,9 +217,10 @@ const App = () => {
                     <h2>{user.name}</h2>
                     <h3>added blogs</h3>
                     <ul>
-                        {user.blogs.map(blog => (
+                        {blogs.filter(blog => blog.user.id === user.id).map(blog => (
                             <li key={blog.id}>{blog.title}</li>
-                        ))}
+                        ))
+                        }
                     </ul>
                 </>
             }
@@ -214,7 +228,8 @@ const App = () => {
     )
 
     return (
-        <div>
+        <Container>
+            <Navigation />
             <Header />
             <Switch>
                 <Route path='/users/:id'>
@@ -230,7 +245,7 @@ const App = () => {
                     <AllBlogs />
                 </Route>
             </Switch>
-        </div>
+        </Container>
     )
 }
 

@@ -1,6 +1,8 @@
 import usersService from '../services/users'
 
 const reducer = (state = [], action) => {
+    console.log('users state now: ', state)
+    console.log('users action: ', action)
 
     switch(action.type) {
     case 'INIT_USERS':
@@ -12,10 +14,10 @@ const reducer = (state = [], action) => {
 
 export const initializeUsers = () => {
     return async dispatch => {
-        const blogs = await usersService.getAll()
+        const users = await usersService.getAll()
         dispatch({
             type: 'INIT_USERS',
-            data: blogs
+            data: users
         })
     }
 }
