@@ -82,4 +82,24 @@ blogsRouter.put('/:id', async (request, response) => {
     return response.status(404).end()
 })
 
+blogsRouter.post('/:id/comments', async (request, response) => {
+    if (!request.body.comment)
+        return response.status(400).end()
+
+    //request.token is handled by middleware
+    const decodedToken = jwt.verify(request.token, process.env.SECRET)
+    if (!request.token || !decodedToken.id)
+        return response.status(401).json({ error: 'token missing or invalid' })
+
+    const blog = await Blog.findById(request.params.id)
+
+    if (!blog)
+        return response.status(404).end()
+
+    blog.comments = blog.comments.concat(request.body.comment)
+    const savedBlog = await blog.save()
+
+    response.json(savedBlog)
+})
+
 module.exports = blogsRouter

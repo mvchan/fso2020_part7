@@ -83,6 +83,15 @@ Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im1hY
     "user": "60186f140b02c63c50395962"
 }
 
+###
+POST http://localhost:3001/api/blogs/605cd9d38e690e22c8415b75/comments
+Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im1hYzEwIiwiaWQiOiI2MDE4NmYxNDBiMDJjNjNjNTAzOTU5NjIiLCJpYXQiOjE2MTY3ODk2NjN9.av2TH9Pvb2Cg_hG3AOyoO3WCSsaiEYjAUlj4kF2oC1U
+
+{
+    "comment": "test from rest client 2"
+}
+
 //************************************* USER *************************************
 
 
@@ -100,7 +109,7 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:3003/api/users
+POST http://localhost:3001/api/users
 Content-Type: application/json
 
 {

@@ -8,7 +8,8 @@ const Blog = ({ blog, user, likeOperation, deleteOperation }) => {
             author: blog.author,
             url: blog.url,
             likes: blog.likes+1,
-            user: blog.user.id
+            user: blog.user.id,
+            comments: blog.comments
         })
     }
 
@@ -31,6 +32,12 @@ const Blog = ({ blog, user, likeOperation, deleteOperation }) => {
                     : null
                 }
             </div>
+            <h3>comments</h3>
+            <ul>
+                {blog.comments.map(comment => (
+                    <li key={comment} >{comment}</li>
+                ))}
+            </ul>
         </div>
     )
 }
