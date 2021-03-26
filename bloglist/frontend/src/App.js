@@ -5,7 +5,7 @@ import loginService from './services/login'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
 import Togglable from './components/Togglable'
-import { createNewBlog, initializeBlogs, removeBlog, updateBlog, setToken } from './reducers/blogReducer'
+import { createNewBlog, initializeBlogs, removeBlog, updateBlog, setToken, addComment } from './reducers/blogReducer'
 import { setNormalMessage, setErrorMessage } from './reducers/notificationReducer'
 import { setLogin } from './reducers/loginReducer'
 import { initializeUsers } from './reducers/usersReducer'
@@ -84,6 +84,14 @@ const App = () => {
             dispatch(setNormalMessage(`the blog titled '${blog.title}' by ${blog.author} has been deleted`))
         } catch (exception) {
             dispatch(setErrorMessage('Could not delete blog'))
+        }
+    }
+
+    const handleCommentOperation = async (id, comment) => {
+        try {
+            dispatch(addComment(id,comment))
+        } catch (exception) {
+            dispatch(setErrorMessage('Could not add comment'))
         }
     }
 
@@ -239,7 +247,7 @@ const App = () => {
                     <Users />
                 </Route>
                 <Route path='/blogs/:id'>
-                    <Blog blog={blog} user={login} likeOperation={handleLikeOperation} deleteOperation={handleDeleteOperation} />
+                    <Blog blog={blog} user={login} likeOperation={handleLikeOperation} deleteOperation={handleDeleteOperation} commentOperation={handleCommentOperation} />
                 </Route>
                 <Route path='/'>
                     <AllBlogs />

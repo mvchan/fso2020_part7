@@ -22,6 +22,10 @@ const reducer = (state = [], action) => {
         state.splice(state.findIndex(a => a.id === action.data),1)
         blogsCopy = cloneDeep(state)
         return blogsCopy
+    case 'ADD_COMMENT':
+        state[state.findIndex(a => a.id === action.data.id)].comments.push(action.data.comment)
+        blogsCopy = cloneDeep(state)
+        return blogsCopy
     default:
         return state
     }
@@ -63,12 +67,22 @@ export const updateBlog = (id,blogObject) => {
     }
 }
 
-export const removeBlog = (id) => {
+export const removeBlog = id => {
     return async dispatch => {
         await blogService.remove(id)
         dispatch({
             type: 'REMOVE_BLOG',
             data: id
+        })
+    }
+}
+
+export const addComment = (id, comment) => {
+    return async dispatch => {
+        const blog = await blogService.addComment(id,comment)
+        dispatch({
+            type: 'ADD_COMMENT',
+            data: { comment, ...blog }
         })
     }
 }

@@ -1,5 +1,6 @@
 import React from 'react'
-const Blog = ({ blog, user, likeOperation, deleteOperation }) => {
+
+const Blog = ({ blog, user, likeOperation, deleteOperation, commentOperation }) => {
 
     //using async/await in order to synchronize likes being shown with actual like count
     const likeBlog = async () => {
@@ -15,6 +16,16 @@ const Blog = ({ blog, user, likeOperation, deleteOperation }) => {
 
     const deleteBlog = async () => {
         await deleteOperation(blog)
+    }
+
+    const addComment = (event) => {
+        event.preventDefault()
+
+        if (!event.target.comment.value)
+            return
+
+        commentOperation(blog.id,event.target.comment.value)
+        event.target.comment.value = ''
     }
 
     if (!user || !blog)
@@ -33,6 +44,9 @@ const Blog = ({ blog, user, likeOperation, deleteOperation }) => {
                 }
             </div>
             <h3>comments</h3>
+            <form onSubmit={addComment}>
+                <input name='comment' /><button type="submit">add comment</button>
+            </form>
             <ul>
                 {blog.comments.map(comment => (
                     <li key={comment} >{comment}</li>
