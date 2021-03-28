@@ -16,6 +16,13 @@ import {
     useHistory
 } from 'react-router-dom'
 import { Container, AppBar, Toolbar, Button } from '@material-ui/core'
+import styled from 'styled-components'
+
+const Footer = styled.div`
+  background: Chocolate;
+  padding: 1em;
+  margin-top: 1em;
+`
 
 const App = () => {
 
@@ -253,6 +260,9 @@ const App = () => {
                     <AllBlogs />
                 </Route>
             </Switch>
+            <Footer>
+                <em>Anecdotes by Mark Chan, 2021</em>
+            </Footer>
         </Container>
     )
 }
